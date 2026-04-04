@@ -20,6 +20,13 @@ from eolearn.features import SimpleFilterTask
 import os
 from PIL import Image
 
+
+
+
+
+
+
+
 class SentinelHubValidData:
     """
     Combine Sen2Cor's classification map with `IS_DATA` to define a `VALID_DATA_SH` mask
@@ -142,6 +149,8 @@ if __name__ == '__main__':
         region = region.geometry.unary_union  # 将所有水域区域的几何形状取并集，得到一个包含所有水域的整体几何形状
         region = gpd.GeoDataFrame(geometry=[region], crs=ice_gdf.crs)
         region_shape = region.geometry.values[-1]
+        region.plot()
+    
         bbox_splitter = BBoxSplitter([region_shape], region.crs, (70, 70))
         bbox_list = np.array(bbox_splitter.get_bbox_list())
         info_list = np.array(bbox_splitter.get_info_list())
@@ -165,6 +174,10 @@ if __name__ == '__main__':
                 patchIDs.append(idx)
         patchIDs = np.transpose(np.fliplr(np.array(patchIDs).reshape(3, 3))).ravel()
 
+        #save to shapefile
+        shapefile_name='./grid_sea_ice.gpkg'
+        gdf.to_file(shapefile_name, driver='GPKG')
+        
         fig, ax = plt.subplots(figsize=(20, 20))
         gdf.plot(ax=ax, facecolor='w', edgecolor='r', alpha=0.5)
         region.plot(ax=ax, facecolor='w', edgecolor='b', alpha=0.5)
